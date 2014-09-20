@@ -25,7 +25,8 @@ class ListingsController < ApplicationController
   # POST /listings.json
   def create
     @listing = Listing.new(listing_params)
-
+    @listing.user_id = current_user.id
+   
     respond_to do |format|
       if @listing.save
         format.html { redirect_to @listing, notice: 'Listing was successfully created.' }
@@ -72,3 +73,4 @@ class ListingsController < ApplicationController
       params.require(:listing).permit(:name, :description, :price, :image)
     end
 end
+
