@@ -3,9 +3,9 @@ class ListingsController < ApplicationController
   before_filter :authenticate_user!, only: [:seller, :new, :create, :edit, :update, :destroy]
   before_filter :check_user, only: [:edit, :update, :destroy]
 
-def seller
-  @listings = Listing.where(user: current_user).order("created_at DESC")
-end
+  def seller
+    @listings = Listing.where(user: current_user).order("created_at DESC")
+  end
 
   # GET /listings
   # GET /listings.json
@@ -32,7 +32,21 @@ end
   def create
     @listing = Listing.new(listing_params)
     @listing.user_id = current_user.id
-   
+
+    if current_user.recipient.blank?
+      Stripe.api_key = ENV["STRIPE_API_KEY"]
+      token = params[:stripeToken]
+
+      recipient = Stripe::Recipient.create(
+        :name => current_user.name,
+        :type => "individual",
+        :bank_account => token
+        )
+
+      current_user.recipient = recipient.id
+      current_user.save
+    end
+
     respond_to do |format|
       if @listing.save
         format.html { redirect_to @listing, notice: 'Listing was successfully created.' }
@@ -79,10 +93,9 @@ end
       params.require(:listing).permit(:name, :description, :price, :image)
     end
 
-   def check_user
+    def check_user
       if current_user != @listing.user
         redirect_to root_url, alert: "Sorry, this listing belongs to someone else"
-      
+      end
     end
-end
 end
