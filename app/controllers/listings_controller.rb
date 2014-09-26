@@ -60,7 +60,7 @@ class ListingsController < ApplicationController
 
   # DELETE /listings/1
   # DELETE /listings/1.json
-  def destroy
+  def destroys
     @listing.destroy
     respond_to do |format|
       format.html { redirect_to listings_url }
@@ -68,7 +68,7 @@ class ListingsController < ApplicationController
     end
   end
 
-  private
+    private
     # Use callbacks to share common setup or constraints between actions.
     def set_listing
       @listing = Listing.find(params[:id])
@@ -77,11 +77,5 @@ class ListingsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def listing_params
       params.require(:listing).permit(:name, :description, :price, :image)
-    end
-
-    def check_user
-      if current_user != @listing.user
-        redirect_to root_url, alert: "Sorry, this listing belongs to someone else"
-      end
     end
 end
